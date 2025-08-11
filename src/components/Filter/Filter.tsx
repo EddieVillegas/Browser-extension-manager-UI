@@ -1,4 +1,4 @@
-import type { Tab } from '../../App'
+import type { Tab } from '../../types'
 
 type Props = {
   tab: Tab
