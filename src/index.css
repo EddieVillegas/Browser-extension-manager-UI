@@ -1,0 +1,22 @@
+@font-face {
+    font-family: "Noto Sans";
+    src: url("./assets/fonts/NotoSans-Regular.ttf") format("ttf");
+}
+
+@font-face {
+    font-family: "Noto Sans Bold";
+    src: url("./assets/fonts/NotoSans-Bold.ttf") format("ttf");
+}
+
+@font-face {
+    font-family: "Noto Sans Medium";
+    src: url("./assets/fonts/NotoSans-Medium.ttf") format("ttf");
+}
+
+@theme {
+    --font-noto: "Noto Sans";
+    --font-noto-bold: "Noto Sans Bold";
+    --font-noto-medium: "Noto Sans Medium";
+}
+
+@import "tailwindcss"
