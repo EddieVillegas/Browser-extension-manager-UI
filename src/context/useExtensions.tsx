@@ -2,17 +2,14 @@ import type { Item, Tab } from '../types';
 import data from '../data.json' with { type: 'json' }
 import { 
     useMemo,
-    useState,
+    useReducer,
     useContext,
-    useCallback,
     createContext,
 } from 'react';
 
-
-
 type Context = {
     tab: Tab
-    extensions: Item[]
+    extensions: Item[],
     onClick: (nameTab: Tab) => void
     updateExtension: (extensionName: string) => void
     removeExtension: (extensionName:  string) => void
@@ -22,51 +19,109 @@ type Props = {
     children: React.ReactNode
 }
 
+type StateExtension = Pick<Context, "extensions" | "tab">
+
+type SetFilter = {
+    type: "FILTER",
+    payload: Tab
+}
+
+type RemoveExtension = {
+    type: "REMOVE",
+    payload?: string
+}
+
+type ToggleExtension = {
+    type: "UPDATE",
+    payload?: string
+}
+
+type Actions = SetFilter | RemoveExtension | ToggleExtension
+
+//State
+const initialState: StateExtension = {
+    tab: 'all',
+    extensions: data,
+}
+
+// Reducer
+const reducer = (
+    state: StateExtension,
+    action: Actions,
+): StateExtension => {
+    switch(action.type) {
+        case "REMOVE": {
+            const { payload } = action
+            return {
+                ...state,
+                extensions: state.extensions.filter(({ name }) => name !== payload)
+            }
+        }
+        case "UPDATE": {
+            const { payload } = action
+            return {
+                ...state,
+                extensions: state.extensions.map(
+                    extension => payload !== extension.name ? extension : { ...extension, isActive: !extension.isActive }
+                )
+            }
+        }
+        case "FILTER": {
+            const { payload: tab } = action
+            return { ...state, tab }
+        }
+        default:
+            return state
+    }
+}
+
+//Actions
+const filterAction = (tab: Tab): Actions => ({ type: "FILTER", payload: tab })
+
+const updateAction = (extensionName: string): Actions => ({type: 'UPDATE', payload: extensionName})
+
+const removeAction = (extensionName: string): Actions => ({type: 'REMOVE', payload: extensionName})
+
+//Selectors
+const selectFilter = ({ tab }: StateExtension) => tab
+
+const selectExtension = ({ extensions }: StateExtension) => extensions
+
+const selectFilteredExtension = (state:  StateExtension) => {
+    const tab = selectFilter(state)
+    const extensions = selectExtension(state)
+    switch(tab) {
+        case 'active': return extensions.filter(extension => extension.isActive)
+        case 'inactive': return extensions.filter(extension => !extension.isActive)
+        default: return extensions
+    }
+}
+
+//Context
 const ExtensionsContext = createContext<Context | null>(null)
 
 export default function ExtensionProvider({ 
     children
 }: Props){
     
-    const [tab, setTab] = useState<Tab>("all")
+    const [state, dispatch] = useReducer(reducer, initialState)
 
-    const [extensions, setExtensions] = useState<Item[]>(data)
+    const filterExtensions = (tab: Tab) =>
+        dispatch(filterAction(tab))
 
-    const onClick = useCallback((tab: Tab) => setTab(tab), [tab])
-
-    const filterExtensions = (): Item[] => 
-        extensions.filter(extension => {
-            if(tab === "all")
-                return true
-            else if(tab === 'active')
-                return extension.isActive
-            else if(tab === 'inactive')
-                return !extension.isActive
-        })
- 
-    const removeExtension = (extension: string): void =>
-        setExtensions(extensions.filter(({ name }) => name !== extension))
+    const updateExtension = (extensionName: string) =>
+        dispatch(updateAction(extensionName))
     
-    const updateExtension = (extensionName: string): void =>
-        setExtensions(
-            extensions.map(
-                extension => 
-                    extensionName === extension.name 
-                        ? {...extension, isActive: !extension.isActive}
-                        : extension
-        ))
-
-    const visibleExtensions = useMemo(
-        () => filterExtensions()
-    , [extensions, tab])
+    const removeExtension = (extensionName: string) =>
+        dispatch(removeAction(extensionName))
 
     return(
         <ExtensionsContext.Provider value={{
-            tab,
-            onClick,
+            tab: state.tab,
             updateExtension,
-            extensions: visibleExtensions,
             removeExtension,
+            onClick: filterExtensions,
+            extensions: selectFilteredExtension(state),
         }}>
             {children}
         </ExtensionsContext.Provider>
