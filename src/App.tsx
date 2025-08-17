@@ -27,7 +27,7 @@ export default function App() {
 
   const classNameDiv = clsx(
     "w-full",
-    "h-viewport-h",
+    "h-screen",
     "py-6",
     "px-4",
     "md:py-10",

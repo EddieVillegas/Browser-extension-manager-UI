@@ -19,6 +19,8 @@ export default function Button({
 
     const buttonClass = clsx(
         "px-5",
+        "pb-3",
+        "pt-2",
         "border-1",
         "outline-0",
         "capitalize",
