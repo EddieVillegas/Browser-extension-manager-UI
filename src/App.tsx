@@ -25,21 +25,33 @@ export default function App() {
     isDark ? "text-neutral-50" : "text-neutral-900"
   )
 
+  const classNameDiv = clsx(
+    "w-full",
+    "h-viewport-h",
+    "py-6",
+    "px-4",
+    "md:py-10",
+    "md:px-8",
+    isDark ? "bg-[linear-gradient(180deg,#04091B_0%,#091540_100%)]" : "bg-[linear-gradient(180deg,#EBF2FC_0%,#EEFBF9_100%)]"
+  )
+
   return (
-    <main className={`md:w-3/5 mx-auto p-5 ${isDark ? "bg-[linear-gradient(180deg,#04091B_0%,#091540_100%)]" : "bg-[linear-gradient(180deg,#EBF2FC_0%,#EEFBF9_100%)]"}`}>
-      <div className={`flex row justify-between p-3 rounded-2xl ${isDark ? "bg-neutral-800" : "bg-neutral-50"} shadow mb-8`}>
-        <Logo img={logo} />
-        <Toggle darkMode={isDark} onClick={toggleDark}/>
+    <div className={classNameDiv}>
+      <div className='mx-auto lg:w-3/4 max-w-6xl'>
+        <div className={`flex row justify-between p-3 rounded-2xl ${isDark ? "bg-neutral-800" : "bg-neutral-50"} shadow mb-8`}>
+          <Logo img={logo} />
+          <Toggle darkMode={isDark} onClick={toggleDark}/>
+        </div>
+        <div className="flex flex-col md:flex-row md:justify-between mb-6 gap-4">
+          <h1 className={classH1}>
+            extensions list
+          </h1>
+          <FilterTab onClick={onClick} tab={tab} />
+        </div>
+        <div className='grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>
+          {extensions.map(makeCard)}
+        </div>
       </div>
-      <div className="flex flex-col md:flex-row md:justify-between mb-6 gap-4">
-        <h1 className={classH1}>
-          extensions list
-        </h1>
-        <FilterTab onClick={onClick} tab={tab} />
-      </div>
-      <div className='grid gap-3 md:grid-cols-2 lg:grid-cols-3'>
-        {extensions.map(makeCard)}
-      </div>
-    </main>
+    </div>
   )
 }
