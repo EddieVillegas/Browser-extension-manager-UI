@@ -1,7 +1,6 @@
 import type { Item, Tab } from '../types';
 import data from '../data.json' with { type: 'json' }
-import { 
-    useMemo,
+import {
     useReducer,
     useContext,
     createContext,
